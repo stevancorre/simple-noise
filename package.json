@@ -12,6 +12,7 @@
     },
     "types": "dist/index.d.ts",
     "devDependencies": {
+        "@types/random-seed": "^0.3.3",
         "@typescript-eslint/eslint-plugin": "^5.38.1",
         "@typescript-eslint/parser": "^5.38.1",
         "eslint": "^8.24.0",
@@ -27,5 +28,8 @@
         "npm",
         "perlin",
         "simplex"
-    ]
+    ],
+    "dependencies": {
+        "random-seed": "^0.3.0"
+    }
 }

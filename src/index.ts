@@ -1,1 +1,3 @@
-console.log("ok");
+import { PerlinGenerator } from "./perlin";
+
+export { PerlinGenerator };
