@@ -3,8 +3,8 @@ export const gradient1D = (hash: number, x: number): number => {
 };
 
 export const gradient2D = (hash: number, x: number, y: number): number => {
-    const H:number = hash & 3;
-    
+    const H: number = hash & 3;
+
     return (H < 2 ? x : -x) + (H === 0 || H === 2 ? y : -y);
 };
 

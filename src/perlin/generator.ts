@@ -1,7 +1,7 @@
 import { create } from "random-seed";
 
 import { fade, lerp } from "../math";
-import { gradient1D } from "./helpers";
+import { gradient1D, gradient2D, gradient3D, gradient4D } from "./helpers";
 
 const Permutations: ReadonlyArray<number> = [
     151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99,
@@ -18,7 +18,7 @@ const Permutations: ReadonlyArray<number> = [
     61, 156, 180,
 ];
 
-export class PerlinGenerator {
+export default class PerlinGenerator {
     private readonly offset: number;
 
     public constructor(seed?: string | number) {
@@ -30,9 +30,156 @@ export class PerlinGenerator {
     }
 
     public get1D(x: number): number {
-        const FX: number = Math.floor(x);
-        const X: number = FX & 255;
+        const FX = Math.floor(x),
+            X = FX & 255;
 
         return lerp(fade(x), gradient1D(this.P(this.P(X)), x), gradient1D(this.P(this.P(X + 1)), x - 1));
     }
+
+    public get2D(x: number, y: number): number {
+        const FX = Math.floor(x),
+            FY = Math.floor(y),
+            X = FX & 255,
+            Y = FY & 255,
+            A = this.P(X) + Y,
+            B = this.P(X + 1) + Y;
+
+        x -= FX;
+        y -= FY;
+
+        const FDX = fade(x),
+            x1 = x - 1,
+            y1 = y - 1;
+
+        return lerp(
+            fade(y),
+            lerp(FDX, gradient2D(this.P(A), x, y), gradient2D(this.P(B), x1, y)),
+            lerp(FDX, gradient2D(this.P(A + 1), x, y1), gradient2D(this.P(B + 1), x1, y1)),
+        );
+    }
+
+    public get3D(x: number, y: number, z: number): number {
+        const FX = Math.floor(x),
+            FY = Math.floor(y),
+            FZ = Math.floor(z),
+            X = FX & 255,
+            Y = FY & 255,
+            Z = FZ & 255,
+            A = this.P(X) + Y,
+            B = this.P(X + 1) + Y,
+            AA = this.P(A) + Z,
+            BA = this.P(B) + Z,
+            AB = this.P(A + 1) + Z,
+            BB = this.P(B + 1) + Z;
+
+        x -= FX;
+        y -= FY;
+        z -= FZ;
+
+        const FDX = fade(x),
+            FDY = fade(y),
+            x1 = x - 1,
+            y1 = y - 1,
+            z1 = z - 1;
+
+        return lerp(
+            fade(z),
+            lerp(
+                FDY,
+                lerp(FDX, gradient3D(this.P(AA), x, y, z), gradient3D(this.P(BA), x1, y, z)),
+                lerp(FDX, gradient3D(this.P(AB), x, y1, z), gradient3D(this.P(BB), x1, y1, z)),
+            ),
+            lerp(
+                FDY,
+                lerp(FDX, gradient3D(this.P(AA + 1), x, y, z1), gradient3D(this.P(BA + 1), x1, y, z1)),
+                lerp(FDX, gradient3D(this.P(AB + 1), x, y1, z1), gradient3D(this.P(BB + 1), x1, y1, z1)),
+            ),
+        );
+    }
+
+    public get4D(x: number, y: number, z: number, t: number): number {
+        const FX = Math.floor(x),
+            FY = Math.floor(y),
+            FZ = Math.floor(z),
+            FT = Math.floor(t),
+            X = FX & 255,
+            Y = FY & 255,
+            Z = FZ & 255,
+            T = FT & 255,
+            A = this.P(X) + Y,
+            B = this.P(X + 1) + Y,
+            AA = this.P(A) + Z,
+            BA = this.P(B) + Z,
+            AB = this.P(A + 1) + Z,
+            BB = this.P(B + 1) + Z,
+            AAA = this.P(AA) + T,
+            BAA = this.P(BA) + T,
+            ABA = this.P(AB) + T,
+            BBA = this.P(BB) + T,
+            AAB = this.P(AA + 1) + T,
+            BAB = this.P(BA + 1) + T,
+            ABB = this.P(AB + 1) + T,
+            BBB = this.P(BB + 1) + T;
+
+        x -= FX;
+        y -= FY;
+        z -= FZ;
+        t -= FT;
+
+        const FDX = fade(x),
+            FDY = fade(y),
+            FDZ = fade(z),
+            x1 = x - 1,
+            y1 = y - 1,
+            z1 = z - 1,
+            t1 = t - 1;
+
+        return lerp(
+            fade(t),
+            lerp(
+                FDZ,
+                lerp(
+                    FDY,
+                    lerp(FDX, gradient4D(this.P(AAA), x, y, z, t), gradient4D(this.P(BAA), x1, y, z, t)),
+                    lerp(FDX, gradient4D(this.P(ABA), x, y1, z, t), gradient4D(this.P(BBA), x1, y1, z, t)),
+                ),
+                lerp(
+                    FDY,
+                    lerp(FDX, gradient4D(this.P(AAB), x, y, z1, t), gradient4D(this.P(BAB), x1, y, z1, t)),
+                    lerp(FDX, gradient4D(this.P(ABB), x, y1, z1, t), gradient4D(this.P(BBB), x1, y1, z1, t)),
+                ),
+            ),
+            lerp(
+                FDZ,
+                lerp(
+                    FDY,
+                    lerp(
+                        FDX,
+                        gradient4D(this.P(AAA + 1), x, y, z, t1),
+                        gradient4D(this.P(BAA + 1), x1, y, z, t1),
+                    ),
+                    lerp(
+                        FDX,
+                        gradient4D(this.P(ABA + 1), x, y1, z, t1),
+                        gradient4D(this.P(BBA + 1), x1, y1, z, t1),
+                    ),
+                ),
+                lerp(
+                    FDY,
+                    lerp(
+                        FDX,
+                        gradient4D(this.P(AAB + 1), x, y, z1, t1),
+                        gradient4D(this.P(BAB + 1), x1, y, z1, t1),
+                    ),
+                    lerp(
+                        FDX,
+                        gradient4D(this.P(ABB + 1), x, y1, z1, t1),
+                        gradient4D(this.P(BBB + 1), x1, y1, z1, t1),
+                    ),
+                ),
+            ),
+        );
+    }
 }
+
+Object.seal(PerlinGenerator);

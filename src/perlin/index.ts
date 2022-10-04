@@ -1,3 +1,3 @@
-import { PerlinGenerator } from "./generator";
+import PerlinGenerator from "./generator";
 
 export { PerlinGenerator };
